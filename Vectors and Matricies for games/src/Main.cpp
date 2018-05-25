@@ -13,13 +13,20 @@ I3DEngine* myEngine = New3DEngine( kTLX );
 ICamera* main_camera;
 
 IMesh*	 box_mesh;
-IModel*	 box_model;
+IModel*	 controllable_model;
 IModel*	 mirror_box_model;
+IModel*	 target_box_model;
 IMesh*	 floor_mesh;
 IModel*	 floor_model;
 
-float    elements_copy[16];
-Matrix4x4 example;
+float     controllable_cube_matrix_elements_copy[16];
+Matrix4x4 controllable_cube_matrix;
+
+float     mirror_cube_matrix_elements_copy[16];
+Matrix4x4 mirror_cube_matrix;
+
+float     target_cube_matrix_elements_copy[16];
+Matrix4x4 target_cube_matrix;
 
 // Fixed update rate
 const float MONITOR_REFRESH_RATE = 1.f / 60.f;  // In Hertz
@@ -37,12 +44,13 @@ void main( ) {
 	// local media folder
 	myEngine->AddMediaFolder( ".\\Media" );
 
-	main_camera = myEngine->CreateCamera( kManual, 50.0f, 0.0f, -20.0f );
+	main_camera = myEngine->CreateCamera( kManual, 50.0f, 50.0f, 0.0f );
 	main_camera->RotateLocalY( 270.f );
 
 	box_mesh = myEngine->LoadMesh( "Cube.x" );
-	box_model = box_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
+	controllable_model = box_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
 	mirror_box_model = box_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
+	target_box_model = box_mesh->CreateModel( 0.0f, 0.0f, 50.0f );
 
 	floor_mesh = myEngine->LoadMesh( "Floor.x" );
 	floor_model = floor_mesh->CreateModel( 0.0f, -50.0f, 0.0f );
@@ -64,90 +72,97 @@ void main( ) {
 
 void game_update( float _delta ) {
 	// perform look at
-	main_camera->LookAt( box_model->GetLocalX( ), box_model->GetLocalY( ), box_model->GetLocalZ( ) );
+	main_camera->LookAt( controllable_model->GetLocalX( ), controllable_model->GetLocalY( ), controllable_model->GetLocalZ( ) );
 
 	// update our matrix with current matrix of cube
-	box_model->GetMatrix( elements_copy );
-	example.set( elements_copy );
+	controllable_model->GetMatrix( controllable_cube_matrix_elements_copy );
+	controllable_cube_matrix.set( controllable_cube_matrix_elements_copy );
+
+	{	/* find angle and direction between the controllable cube and the target cube*/
+		target_box_model->GetMatrix( target_cube_matrix_elements_copy );
+		target_cube_matrix.set( target_cube_matrix_elements_copy );
+
+		float direction_value;
+		float angle		= Vector3::FindAngleBetween( controllable_cube_matrix.get_position( ), target_cube_matrix.get_position( ), controllable_cube_matrix.get_facing( ) );
+		bool  direction = Vector3::FindDirectionBetween( controllable_cube_matrix.get_position( ), target_cube_matrix.get_position( ), controllable_cube_matrix.get_right( ) );
+	}
 
 	if( myEngine->KeyHeld( Key_W ) ) {
-		example.move_local_z( translation_rate *_delta );
+		controllable_cube_matrix.move_local_z( translation_rate *_delta );
 	}
 
 	if( myEngine->KeyHeld( Key_S ) ) {
-		example.move_local_z( -translation_rate * _delta );
+		controllable_cube_matrix.move_local_z( -translation_rate * _delta );
 	}
 
 	if( myEngine->KeyHeld( Key_D ) ) {
-		example.move_local_x( translation_rate *_delta );
+		controllable_cube_matrix.move_local_x( translation_rate *_delta );
 	}
 
 	if( myEngine->KeyHeld( Key_A ) ) {
-		example.move_local_x( -translation_rate * _delta );
+		controllable_cube_matrix.move_local_x( -translation_rate * _delta );
 	}
 
 	if( myEngine->KeyHeld( Key_T ) ) {
 		math::Vector3 up = Vector3::Cross( Vector3::Right, Vector3::Forward );
-		example.move_local( up );
+		controllable_cube_matrix.move_local( up );
 	}
 
 	if( myEngine->KeyHeld( Key_E ) ) {
-		example.rotate_y( -rotatation_rate * _delta );
+		controllable_cube_matrix.rotate_y( -rotatation_rate * _delta );
 	}
 
 	if( myEngine->KeyHeld( Key_Q ) ) {
-		example.rotate_y( rotatation_rate *_delta );
+		controllable_cube_matrix.rotate_y( rotatation_rate *_delta );
 	}
 
 	if( myEngine->KeyHeld( Key_Up ) ) {
-		example.rotate_x( rotatation_rate *_delta, true );
+		controllable_cube_matrix.rotate_x( rotatation_rate *_delta, true );
 	}
 
 	if( myEngine->KeyHeld( Key_Down ) ) {
-		example.rotate_x( -rotatation_rate * _delta, true );
+		controllable_cube_matrix.rotate_x( -rotatation_rate * _delta, true );
 	}
 
 	if( myEngine->KeyHeld( Key_Right ) ) {
-		example.rotate_z( rotatation_rate *_delta );
+		controllable_cube_matrix.rotate_z( rotatation_rate *_delta );
 	}
 
 	if( myEngine->KeyHeld( Key_Left ) ) {
-		example.rotate_z( -rotatation_rate * _delta );
+		controllable_cube_matrix.rotate_z( -rotatation_rate * _delta );
 	}
 
 	if( myEngine->KeyHeld( Key_J ) ) {
-		example.scale_x( scale_rate );
+		controllable_cube_matrix.scale_x( scale_rate );
 	}
 
 	if( myEngine->KeyHeld( Key_K ) ) {
-		example.scale_y( scale_rate );
+		controllable_cube_matrix.scale_y( scale_rate );
 	}
 
 	if( myEngine->KeyHeld( Key_L ) ) {
-		example.scale_z( scale_rate );
+		controllable_cube_matrix.scale_z( scale_rate );
 	}
 
 	if( myEngine->KeyHeld( Key_I ) ) {
-		example.scale( scale_rate );
+		controllable_cube_matrix.scale( scale_rate );
 	}
 
 	{ /* transposing (using mirror for more interesting results) */
-		Vector3 tmp_position = Vector3( example.get_position( ) );
-		Matrix4x4 tmp_matrix;
-		float tmp_array[16];
+		Vector3 tmp_position = Vector3( controllable_cube_matrix.get_position( ) );
 
 		// transpose our controllable cube matrix
 		// and apply the negative position of the controllable cube
-		tmp_matrix = Matrix4x4::mirror( example, tmp_position );
+		mirror_cube_matrix = Matrix4x4::mirror( controllable_cube_matrix, tmp_position );
 
 		// retrieve the matrix and apply to mirror cube
-		tmp_matrix.get( tmp_array );
-		mirror_box_model->SetMatrix( tmp_array );
+		mirror_cube_matrix.get( mirror_cube_matrix_elements_copy );
+		mirror_box_model->SetMatrix( mirror_cube_matrix_elements_copy );
 	}
 
 	// apply modifications to our matrix to the cube's matrix
-	example.get( elements_copy );
-	box_model->SetMatrix( elements_copy );
+	controllable_cube_matrix.get( controllable_cube_matrix_elements_copy );
+	controllable_model->SetMatrix( controllable_cube_matrix_elements_copy );
 
 	if( myEngine->KeyHit( Key_Escape ) ) {
 		myEngine->Stop( );

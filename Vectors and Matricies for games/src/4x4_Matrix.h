@@ -600,6 +600,18 @@ namespace math {
 			return Vector3( e03, e13, e23 );
 		}
 
+		Vector3 get_facing( ) {
+			return Vector3( -e02, -e12, -e22 );
+		}
+
+		Vector3 get_up( ) {
+			return Vector3( -e01, -e11, -e21 );
+		}
+
+		Vector3 get_right( ) {
+			return Vector3( -e00, -e10, -e20 );
+		}
+
 		// Matrix elements
 		float e00, e01, e02, e03;
 		float e10, e11, e12, e13;

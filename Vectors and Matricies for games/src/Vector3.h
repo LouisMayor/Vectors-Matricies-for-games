@@ -53,16 +53,20 @@ namespace math {
 		*/
 		float ScalarTripleProduct( const Vector3& _w, const Vector3& _u ) const;
 
+		float FindAngleBetween( Vector3& _w ) const;
+
 		/* Non-member Functions */
-		static float	LengthSquared		( const Vector3& _v );
-		static float	Length				( const Vector3& _v );
-		static bool		IsZero				( const Vector3& _v ) ;
-		static bool		IsZero				( const float&	 _input );
-		static Vector3	Cross				( const Vector3& _v, const Vector3& _w	);
-		static float	Dot					( const Vector3& _v, const Vector3& _w	);
-		static Vector3	Normalise			( const Vector3& _v						);
-		static Vector3	TripleProduct		( const Vector3& _v, const Vector3& _w	);
-		static float	ScalarTripleProduct	( const Vector3& _v, const Vector3& _w, const Vector3& _u );
+		static float	LengthSquared			( const Vector3& _v );
+		static float	Length					( const Vector3& _v );
+		static bool		IsZero					( const Vector3& _v ) ;
+		static bool		IsZero					( const float&	 _input );
+		static Vector3	Cross					( const Vector3& _v, const Vector3& _w	);
+		static float	Dot						( const Vector3& _v, const Vector3& _w	);
+		static Vector3	Normalise				( const Vector3& _v						);
+		static Vector3	TripleProduct			( const Vector3& _v, const Vector3& _w	);
+		static float	ScalarTripleProduct		( const Vector3& _v, const Vector3& _w, const Vector3& _u );
+		static float	FindAngleBetween		( Vector3& _v, Vector3& _w, Vector3& _u );
+		static bool 	FindDirectionBetween	( Vector3& _v, Vector3& _w, Vector3& _u, float* out_value = nullptr, bool _convert_to_degress = false );
 
 		/* Member variables */
 		float x, y, z;
