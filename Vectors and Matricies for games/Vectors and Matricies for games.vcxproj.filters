@@ -7,6 +7,9 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\4x4_Matrix.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

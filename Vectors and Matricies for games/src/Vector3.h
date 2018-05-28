@@ -66,7 +66,7 @@ namespace math {
 		static Vector3	TripleProduct			( const Vector3& _v, const Vector3& _w	);
 		static float	ScalarTripleProduct		( const Vector3& _v, const Vector3& _w, const Vector3& _u );
 		static float	FindAngleBetween		( Vector3& _v, Vector3& _w, Vector3& _u );
-		static bool 	FindDirectionBetween	( Vector3& _v, Vector3& _w, Vector3& _u, float* out_value = nullptr, bool _convert_to_degress = false );
+		static bool 	FindDirectionBetween	( Vector3& _v, Vector3& _w, Vector3& _u, float* out_value = nullptr );
 
 		/* Member variables */
 		float x, y, z;

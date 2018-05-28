@@ -6,11 +6,14 @@
 using namespace tle;
 using namespace math;
 
+bool setup( );
 void text_update( );
 void game_update( float _delta );
+
+/* helper functions */
 void ViewportPosition( float* _x, float* _y );
 
-I3DEngine* myEngine = New3DEngine( kTLX );
+I3DEngine* myEngine;
 
 /* font pointer */
 IFont*  game_text;
@@ -24,12 +27,14 @@ ICamera* main_camera;
 /* mesh pointers */
 IMesh*	 box_mesh;
 IMesh*	 floor_mesh;
+IMesh*   arrow_mesh;
 
 /* model pointers */
 IModel*	 controllable_model;
 IModel*	 mirror_box_model;
 IModel*	 target_box_model;
 IModel*	 floor_model;
+IModel*	 arrow_model_pointer;
 
 /* models' matricies, and intermediate arrays to communicate through the api */
 float     controllable_cube_matrix_elements_copy[16];
@@ -52,26 +57,19 @@ const float translation_rate = 10.f;
 const float scale_rate = 1.1f;
 
 void main( ) {
+	myEngine = New3DEngine( kTLX );
+	if( myEngine == nullptr ) {
+		return;
+	}
 	// Create a 3D engine (using TLX engine here) and open a window for it	
 	myEngine->StartWindowed( );
-
 	/* local media folder */
 	myEngine->AddMediaFolder( ".\\Media" );
 
-	main_camera = myEngine->CreateCamera( kManual, 50.0f, 50.0f, 0.0f );
-	main_camera->RotateLocalY( 270.f );
-
-	/* assign mesh and instantiate instances */
-	box_mesh			= myEngine->LoadMesh( "Cube.x" );
-	controllable_model	= box_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
-	mirror_box_model	= box_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
-	target_box_model	= box_mesh->CreateModel( 0.0f, 0.0f, 50.0f );
-
-	floor_mesh	= myEngine->LoadMesh( "Floor.x" );
-	floor_model = floor_mesh->CreateModel( 0.0f, -50.0f, 0.0f );
-
-	/* load text font */
-	game_text = myEngine->LoadFont( "Font1.bmp" );
+	if( !setup( ) ) {
+		myEngine->Delete( );
+		return;
+	}
 
 	// The main game loop, repeat until engine is stopped
 	while( myEngine->IsRunning( ) ) {
@@ -87,6 +85,43 @@ void main( ) {
 
 	// Delete the 3D engine now we are finished with it
 	myEngine->Delete( );
+}
+
+bool setup( ) {
+	main_camera = myEngine->CreateCamera( kManual, 50.0f, 50.0f, 0.0f );
+	/*main_camera = myEngine->CreateCamera( kManual, 0.0f, 0.0f, 0.0f );*/
+	if( main_camera == nullptr ) {
+		return false;
+	}
+	main_camera->RotateLocalY( 270.f );
+
+	/* assign mesh and instantiate instances */
+	box_mesh = myEngine->LoadMesh( "Cube.x" );
+	if( box_mesh == nullptr ) {
+		return false;
+	}
+	controllable_model = box_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
+	mirror_box_model = box_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
+	target_box_model = box_mesh->CreateModel( 0.0f, 0.0f, 50.0f );
+
+	floor_mesh = myEngine->LoadMesh( "Floor.x" );
+	if( floor_mesh == nullptr ) {
+		return false;
+	}
+	floor_model = floor_mesh->CreateModel( 0.0f, -50.0f, 0.0f );
+
+	arrow_mesh = myEngine->LoadMesh( "Cue.x" );
+	if( arrow_mesh == nullptr) {
+		return false;
+	}
+	arrow_model_pointer = arrow_mesh->CreateModel( 0.0f, 0.0f, 0.0f );
+
+	/* load text font */
+	game_text = myEngine->LoadFont( "Font1.bmp" );
+	if( game_text == nullptr ) {
+		return false;
+	}
+	return true;
 }
 
 void text_update( ) {
@@ -109,6 +144,11 @@ void text_update( ) {
 void game_update( float _delta ) {
 	/* perform look at */
 	main_camera->LookAt( controllable_model->GetLocalX( ), controllable_model->GetLocalY( ), controllable_model->GetLocalZ( ) );
+
+	arrow_model_pointer->SetPosition( controllable_model->GetLocalX( ), controllable_model->GetLocalY( ) + 10.f, controllable_model->GetLocalZ( ) );
+	arrow_model_pointer->LookAt( target_box_model->GetLocalX( ), target_box_model->GetLocalY( ), target_box_model->GetLocalZ( ) );
+	arrow_model_pointer->Scale( 0.25f );
+	arrow_model_pointer->ScaleZ( 0.05f );
 
 	/* update our matrix with current matrix of cube */
 	controllable_model->GetMatrix( controllable_cube_matrix_elements_copy );
@@ -187,13 +227,23 @@ void game_update( float _delta ) {
 		controllable_cube_matrix.scale( scale_rate );
 	}
 
-	{ /* transposing (using mirror for more interesting results) */
+	static bool make_rotation = false;
+	if( myEngine->KeyHit( Key_N ) ) {
+		make_rotation = !make_rotation;
+		if( make_rotation ) {
+			controllable_cube_matrix.RotationMatrix( Vector3( 0.0f,   90.0f, 0.0f ) );
+		} else {
+			controllable_cube_matrix.RotationMatrix( Vector3( 180.0f, 180.0f, 180.0f ) );
+		}
+	}
+
+	{ /* transposing (using reflection for more interesting results) */
 		Vector3 tmp_position = Vector3( controllable_cube_matrix.get_position( ) );
 
 		/*	transpose our controllable cube matrix
 			and apply the negative position of the controllable cube
 		*/
-		mirror_cube_matrix = Matrix4x4::mirror( controllable_cube_matrix, tmp_position );
+		mirror_cube_matrix = Matrix4x4::reflection( controllable_cube_matrix, tmp_position );
 
 		/* retrieve the matrix and apply to mirror cube */
 		mirror_cube_matrix.get( mirror_cube_matrix_elements_copy );

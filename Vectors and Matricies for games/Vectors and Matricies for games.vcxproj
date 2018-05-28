@@ -125,6 +125,7 @@ copy "C:\ProgramData\TL-Engine\3rd Party\TL-Xtreme\shader\*.*" "$(OutDir)" &gt; 
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\4x4_Matrix.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Vector3.cpp" />
   </ItemGroup>
