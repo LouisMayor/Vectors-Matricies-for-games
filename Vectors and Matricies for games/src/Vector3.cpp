@@ -128,18 +128,18 @@ namespace math {
 
 	/* returns in degrees */
 	float Vector3::FindAngleBetween( Vector3& _v, Vector3& _w, Vector3& _u ) {
-		Vector3 source_target = Vector3( _v - _w );
+		Vector3 _target_source = Vector3( _w - _v );
 		_u.Normalise( );
-		source_target.Normalise( );
-		return radians_to_degrees( acos( Dot( _u, source_target ) ) );
+		_target_source.Normalise( );
+		return radians_to_degrees( acos( Dot( _u, _target_source ) ) );
 	}
 
 	/* returns boolean. false if left, true if right */
 	bool Vector3::FindDirectionBetween( Vector3 & _v, Vector3 & _w, Vector3 & _u, float* out_value ) {
-		Vector3 source_target = Vector3( _v - _w );
+		Vector3 _target_source = Vector3( _w - _v );
 		_u.Normalise( );
-		source_target.Normalise( );
-		float _direction = Dot( _u, source_target );
+		_target_source.Normalise( );
+		float _direction = Dot( _u, _target_source );
 		if( out_value ) {
 			*out_value = radians_to_degrees( _direction );
 		}

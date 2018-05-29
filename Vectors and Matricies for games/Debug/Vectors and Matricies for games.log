@@ -1,1 +1,6 @@
-﻿
+﻿  Vector3.cpp
+c:\users\navi\gitrepos\vectors-matricies-for-games\vectors and matricies for games\src\mathstuff.h(12): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+c:\users\navi\gitrepos\vectors-matricies-for-games\vectors and matricies for games\src\mathstuff.h(16): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+c:\users\navi\gitrepos\vectors-matricies-for-games\vectors and matricies for games\src\vector3.cpp(134): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+  Vectors and Matricies for games.vcxproj -> C:\Users\navi\gitrepos\Vectors-Matricies-for-games\Vectors and Matricies for games\\Vectors and Matricies for gamesDebug.exe
+  Copying DLLs & shaders...

@@ -9,18 +9,19 @@ namespace math {
 	public:
 		Matrix4x4( ) = default;
 
-		explicit	Matrix4x4( const float* _elements_ptr );
+		explicit	Matrix4x4( const float* _elements_ptr, bool is_row_major );
 
 		explicit	Matrix4x4( float _e00, float _e01, float _e02, float _e03,
 							   float _e10, float _e11, float _e12, float _e13,
 							   float _e20, float _e21, float _e22, float _e23,
-							   float _e30, float _e31, float _e32, float _e33 );
+							   float _e30, float _e31, float _e32, float _e33,
+							   bool row_major );
 
-		Matrix4x4( const Matrix4x4& _matrix );
+		Matrix4x4( const Matrix4x4& _matrix, bool is_row_major );
 
-		void get( float* _elements_ptr );
+		void get( float* _elements_ptr, bool is_row_major );
 
-		void set( const float* _elements_ptr );
+		void set( const float* _elements_ptr, bool is_row_major );
 
 		Matrix4x4& operator= ( const Matrix4x4& _matrix );
 

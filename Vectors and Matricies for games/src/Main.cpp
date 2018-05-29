@@ -152,11 +152,11 @@ void game_update( float _delta ) {
 
 	/* update our matrix with current matrix of cube */
 	controllable_model->GetMatrix( controllable_cube_matrix_elements_copy );
-	controllable_cube_matrix.set( controllable_cube_matrix_elements_copy );
+	controllable_cube_matrix.set( controllable_cube_matrix_elements_copy, true );
 
 	{	/* find angle and direction between the controllable cube and the target cube */
 		target_box_model->GetMatrix( target_cube_matrix_elements_copy );
-		target_cube_matrix.set( target_cube_matrix_elements_copy );
+		target_cube_matrix.set( target_cube_matrix_elements_copy, true );
 
 		float angle		= Vector3::FindAngleBetween( controllable_cube_matrix.get_position( ), target_cube_matrix.get_position( ), controllable_cube_matrix.get_facing( ) );
 		bool  direction = Vector3::FindDirectionBetween( controllable_cube_matrix.get_position( ), target_cube_matrix.get_position( ), controllable_cube_matrix.get_right( ) );
@@ -188,19 +188,19 @@ void game_update( float _delta ) {
 	}
 
 	if( myEngine->KeyHeld( Key_E ) ) {
-		controllable_cube_matrix.rotate_y( -rotatation_rate * _delta );
+		controllable_cube_matrix.rotate_y( rotatation_rate * _delta );
 	}
 
 	if( myEngine->KeyHeld( Key_Q ) ) {
-		controllable_cube_matrix.rotate_y( rotatation_rate *_delta );
+		controllable_cube_matrix.rotate_y( -rotatation_rate *_delta );
 	}
 
 	if( myEngine->KeyHeld( Key_Up ) ) {
-		controllable_cube_matrix.rotate_x( rotatation_rate *_delta, true );
+		controllable_cube_matrix.rotate_x( rotatation_rate *_delta, false );
 	}
 
 	if( myEngine->KeyHeld( Key_Down ) ) {
-		controllable_cube_matrix.rotate_x( -rotatation_rate * _delta, true );
+		controllable_cube_matrix.rotate_x( -rotatation_rate * _delta, false );
 	}
 
 	if( myEngine->KeyHeld( Key_Right ) ) {
@@ -246,12 +246,12 @@ void game_update( float _delta ) {
 		mirror_cube_matrix = Matrix4x4::reflection( controllable_cube_matrix, tmp_position );
 
 		/* retrieve the matrix and apply to mirror cube */
-		mirror_cube_matrix.get( mirror_cube_matrix_elements_copy );
+		mirror_cube_matrix.get( mirror_cube_matrix_elements_copy, true );
 		mirror_box_model->SetMatrix( mirror_cube_matrix_elements_copy );
 	}
 
 	/* apply modifications to our matrix to the cube's matrix */
-	controllable_cube_matrix.get( controllable_cube_matrix_elements_copy );
+	controllable_cube_matrix.get( controllable_cube_matrix_elements_copy, true );
 	controllable_model->SetMatrix( controllable_cube_matrix_elements_copy );
 
 	if( myEngine->KeyHit( Key_Escape ) ) {
